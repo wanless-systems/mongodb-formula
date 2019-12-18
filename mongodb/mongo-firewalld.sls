@@ -6,7 +6,7 @@ include:
   - firewall.firewalld
 
 # Only enable firewall rules if use_replica_set == true
-{% if config.mongodb.use_replica_set == 'true' %}
+{% if config.mongodb.use_replica_set == true %}
 
 # Create XML configuration file for firewalld service
 /etc/firewalld/services/mongodb-replica-set.xml:

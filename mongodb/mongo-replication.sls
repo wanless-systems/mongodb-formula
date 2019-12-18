@@ -1,8 +1,8 @@
 {% from "mongodb/map.jinja" import host_lookup as config with context %}
 
 # Setup replica set if use_replica_set == true
-{% if config.mongodb.use_replica_set == 'true' %}
-{% if config.mongodb.is_master == 'true' %}
+{% if config.mongodb.use_replica_set == true %}
+{% if config.mongodb.is_master == true %}
 
 {% set server = [] %}
 {% for db in salt['pillar.get']('mongodb:lookup:managed_dbs') %}
@@ -19,7 +19,7 @@
 
 # ideas for handling replica sets were influenced
 # from https://github.com/mitodl/mongodb-formula
-{% if node.master == 'true' %}
+{% if node.master == true %}
 
 # Initiate the replica set with default settings
 # on the defined master
@@ -34,7 +34,7 @@ mongodb-initiate-{{ node.name }}-replset:
       - pip: pip-package-install-pymongo
       - file: {{ config.mongodb.security_keyfile  }}
       - service: service-mongod
-    - unless: mongo {{ database }} -u {{ name }} -p {{ passwd }} --quiet --eval "rs.status()" |grep {{ node.fqdn }}:{{ node.port }} 
+    - unless: mongo {{ database }} -u {{ name }} -p {{ passwd }} --quiet --eval "rs.status()" |grep {{ node.fqdn }}:{{ node.port }}
 
 # Run until replica set has initialized
 mongodb-status-{{ node.name }}-replset:
@@ -49,13 +49,13 @@ mongodb-status-{{ node.name }}-replset:
     - shell: /bin/bash
     - output_loglevel: quiet
     - require_in:
-      - module: mongodb-create-admin-account 
+      - module: mongodb-create-admin-account
     - require:
-      - cmd: mongodb-initiate-{{ node.name }}-replset 
-    - unless: mongo {{ database }} -u {{ name }} -p {{ passwd }} --quiet --eval "rs.status()" |grep {{ node.fqdn }}:{{ node.port }} 
+      - cmd: mongodb-initiate-{{ node.name }}-replset
+    - unless: mongo {{ database }} -u {{ name }} -p {{ passwd }} --quiet --eval "rs.status()" |grep {{ node.fqdn }}:{{ node.port }}
 
 # After the replica set has been initialized
-# reconfigure the cluster so our defined node 
+# reconfigure the cluster so our defined node
 # has a higher priority and set the fqdn
 mongodb-reconfig-{{ node.name }}-replset:
   cmd.run:
@@ -65,13 +65,13 @@ mongodb-reconfig-{{ node.name }}-replset:
     - shell: /bin/bash
     - output_loglevel: quiet
     - require:
-      - module: mongodb-create-admin-account 
-      - cmd: comand-mongodb-grant-executeEval-role-to-admin 
-    - unless: mongo {{ database }} -u {{ name }} -p {{ passwd }} --quiet --eval "rs.status()" |grep {{ node.fqdn }}:{{ node.port }} 
+      - module: mongodb-create-admin-account
+      - cmd: comand-mongodb-grant-executeEval-role-to-admin
+    - unless: mongo {{ database }} -u {{ name }} -p {{ passwd }} --quiet --eval "rs.status()" |grep {{ node.fqdn }}:{{ node.port }}
 
-{% elif node.arbiter == 'true' %}
+{% elif node.arbiter == true %}
 
-# If the node is an arbiter 
+# If the node is an arbiter
 mongodb-add-{{ node.name }}-replset:
   cmd.run:
     - name: >-
@@ -80,8 +80,8 @@ mongodb-add-{{ node.name }}-replset:
     - shell: /bin/bash
     - output_loglevel: quiet
     - require:
-      - module: mongodb-create-admin-account 
-      - cmd: comand-mongodb-grant-executeEval-role-to-admin 
+      - module: mongodb-create-admin-account
+      - cmd: comand-mongodb-grant-executeEval-role-to-admin
       - pip: pip-package-install-pymongo
       - file: {{ config.mongodb.security_keyfile  }}
       - service: service-mongod
@@ -98,8 +98,8 @@ mongodb-add-{{ node.name }}-replset:
     - shell: /bin/bash
     - output_loglevel: quiet
     - require:
-      - module: mongodb-create-admin-account 
-      - cmd: comand-mongodb-grant-executeEval-role-to-admin 
+      - module: mongodb-create-admin-account
+      - cmd: comand-mongodb-grant-executeEval-role-to-admin
       - pip: pip-package-install-pymongo
       - file: {{ config.mongodb.security_keyfile  }}
       - service: service-mongod

@@ -3,18 +3,18 @@
 # Don't create user if use_replica_set == true
 # unless node is master. trying to create user
 # on downstream servers results in error
-{% set run_states = 'false' %}
-{% if config.mongodb.use_replica_set == 'true' %}
-  {% if config.mongodb.is_master == 'true' %}
-    {% set run_states = 'true' %}
+{% set run_states = false %}
+{% if config.mongodb.use_replica_set %}
+  {% if config.mongodb.is_master %}
+    {% set run_states = true %}
   {% endif %}
 {% else %}
-{% set run_states = 'true' %}
+{% set run_states = true %}
 {% endif %}
 
 # Setup default admin user if auth == true
-{% if run_states == 'true' %}
-{% if config.mongodb.use_security_auth == 'true' %}
+{% if run_states %}
+{% if config.mongodb.use_security_auth %}
 {% if config.mongodb.security_auth == 'enabled' %}
 
 {% set defined_role = 'executeEval' %}
@@ -57,26 +57,26 @@ mongodb-create-{{ name }}-account:
 
 # Check for admin DB. The admin account has to exist
 # or states will fail. Adding these roles allow
-# using mongo salt modules to perform actions 
-# on DBs otherwise gets an eval() error. 
+# using mongo salt modules to perform actions
+# on DBs otherwise gets an eval() error.
 {% if database == 'admin' %}
 
 # Create the defined role
 comand-mongodb-create-{{ defined_role }}-role:
   cmd.run:
     - name: >-
-        mongo {{ database }} -u {{ name }} -p {{ passwd }} --quiet --eval 
+        mongo {{ database }} -u {{ name }} -p {{ passwd }} --quiet --eval
         "db.createRole({role:'{{ defined_role }}',privileges:[{resource:{anyResource: true},actions:['anyAction']}],roles:[]})"
     - output_loglevel: quiet
     - require:
-      - module: mongodb-create-admin-account 
-    - unless: mongo -u {{ name }} -p {{ passwd }} --quiet --eval "db.getRoles()" {{ database }} |grep {{ defined_role }} 
+      - module: mongodb-create-admin-account
+    - unless: mongo -u {{ name }} -p {{ passwd }} --quiet --eval "db.getRoles()" {{ database }} |grep {{ defined_role }}
 
 # Grant role to user
 comand-mongodb-grant-{{ defined_role }}-role-to-admin:
   cmd.run:
     - name: >-
-        mongo {{ database }} -u {{ name }} -p {{ passwd }} --quiet --eval 
+        mongo {{ database }} -u {{ name }} -p {{ passwd }} --quiet --eval
         "db.grantRolesToUser('{{ name }}',[{role:'{{ defined_role }}',db:'{{ database }}'}])"
     - output_loglevel: quiet
     - require:

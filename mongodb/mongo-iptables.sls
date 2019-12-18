@@ -6,7 +6,7 @@ include:
   - firewall.iptables
 
 # Only enable firewall rules if use_replica_set == true
-{% if config.mongodb.use_replica_set == 'true' %}
+{% if config.mongodb.use_replica_set == true %}
 
 # Loop through list of sources and create firewall rules
 {% for node in config.mongodb.sources %}

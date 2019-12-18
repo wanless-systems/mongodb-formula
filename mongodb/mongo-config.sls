@@ -26,7 +26,7 @@
     - mode: '0644'
 
 # Setup replica set keyfile if replication == true
-{% if config.mongodb.use_keyfile == 'true' %}
+{% if config.mongodb.use_keyfile %}
 
 {{ config.mongodb.security_keyfile }}:
   file.managed:
@@ -34,9 +34,9 @@
     - owner: {{ config.package.mongo_user }}
     - group: {{ config.package.mongo_group }}
     - mode: 0600
-    {% if config.mongodb.restart_service_after_state_change == 'true' %}
+    {% if config.mongodb.restart_service_after_state_change == true %}
     - watch_in:
       - service: service-mongod
     {% endif %}
- 
+
 {% endif %}

@@ -44,14 +44,14 @@ mongodb:
     {% elif grains['os_family'] == 'Debian' %}
       storage_dbpath: '/var/lib/mongodb'               # Define default location for mongo DB path on Debian systems
     {% endif %}
-      restart_service_after_state_change: 'true'
-      use_security_auth: 'true'                         # Use authentication
+      restart_service_after_state_change: true
+      use_security_auth: true                         # Use authentication
       security_auth: 'enabled'                          # Set auth enabled or disabled
-      use_external_net: 'false'                         # Use a secondary ip interface
+      use_external_net: false                         # Use a secondary ip interface
       external_net_bindip: '0.0.0.0'                    # Ex. '{{ grains.ipv4[1] }}, 127.0.0.1' or '0.0.0.0' to listen on all interfaces
       local_net_bindip: '127.0.0.1'                     # If external_net_bindip is set only used for local db creation
-      use_replica_set: 'false'                          # Enable replica set states
-      use_keyfile: 'false'                              # Enable basic key auth for replica sets
+      use_replica_set: false                          # Enable replica set states
+      use_keyfile: false                              # Enable basic key auth for replica sets
       replication_replsetname: 'rs0'                    # Name of replica set
       replication_oplogsizemb: '2048'                   # Replicaset log file size in MB
       keyfile_contents: |                               # Random key using openssl rand -base64 6-1024
@@ -63,22 +63,22 @@ mongodb:
           M92WTe16CB2kv8vc5WZQ/w==
       sources:                                          # List of sources to use in the replica set
         - name: 'mongo00'                               # name of node
-          master: 'true'                                # Master node for deployment, will change after election
-          arbiter: 'false'                              # Use this node as an arbiter
+          master: true                                # Master node for deployment, will change after election
+          arbiter: false                              # Use this node as an arbiter
           ip: '192.168.2.20'                            # IP address for this node
           mask: '/32'                                   # Subnet Mask for this node
           fqdn: 'mongo00.alias454.local'                # FQDN used in replica set creation can be an IP
           port: '27017'                                 # Port used for mongodb on this node
         - name: 'mongo01'
-          master: 'false'
-          arbiter: 'false'
+          master: false
+          arbiter: false
           ip: '192.168.2.19'
           mask: '/32'
           fqdn: 'mongo01.alias454.local'
           port: '27017'
         - name: 'mongo02'
-          master: 'false'
-          arbiter: 'false'
+          master: false
+          arbiter: false
           ip: '192.168.2.21'
           mask: '/32'
           fqdn: 'mongo02.alias454.local'
